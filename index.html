@@ -4,20 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Birds of Manitoba – Year List</title>
-<link rel="manifest" href="manifest.webmanifest">
 
-  <!-- THIS LINE CONNECTS YOUR CSS FILE -->
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- EVERYTHING BELOW THIS LINE IS EXACTLY WHAT YOU ALREADY WROTE -->
 
   <div class="wrap">
     <header class="hdr">
       <div>
         <div class="kicker">YEAR LIST</div>
-        <h1 class="title">BIRDS of manitoba</h1>
+        <h1 class="title">BIRDS OF MANITOBA</h1>
         <div class="meta" id="statLine"></div>
       </div>
 
@@ -37,10 +34,9 @@
         <div class="grid">
           <div class="field">
             <label for="species">BIRD</label>
-            <input id="species" list="mbSpecies"
-                   placeholder="Start typing (ex: Snowy Owl)"
-                   autocomplete="off" />
+            <input id="species" list="mbSpecies" placeholder="Start typing (ex: Snowy Owl)" autocomplete="off" />
             <datalist id="mbSpecies"></datalist>
+            <div class="hint">Suggestions are from your Manitoba list.</div>
           </div>
 
           <div class="row2">
@@ -65,33 +61,28 @@
       <section id="viewList" class="view" style="display:none;">
         <div class="actions">
           <button class="btn" id="exportBtn" type="button">EXPORT CSV</button>
-          <button class="btn" id="backupExportBtn" type="button">EXPORT BACKUP (JSON)</button>
-        </div>
-
-        <div class="actions">
-          <input class="file" id="backupImportFile" type="file" accept="application/json" />
-          <button class="btn" id="backupImportBtn" type="button">IMPORT BACKUP</button>
-        </div>
-
-        <div class="meta" id="backupInfo"></div>
-
-        <div class="actions">
           <button class="btn danger" id="clearYearBtn" type="button">CLEAR THIS YEAR</button>
         </div>
 
+        <section id="backupPanel" class="backupPanel" style="display:none;">
+          <div class="backupRow">
+            <input class="file" id="backupImportFile" type="file" accept="application/json" />
+            <button class="btn" id="backupImportBtn" type="button">IMPORT BACKUP</button>
+          </div>
+          <div class="meta" id="backupInfo"></div>
+        </section>
+
         <div class="list" id="list"></div>
-        <div class="empty" id="emptyState" style="display:none;">
-          NO BIRDS LOGGED YET.
-        </div>
+        <div class="empty" id="emptyState" style="display:none;">NO BIRDS LOGGED YET.</div>
       </section>
     </main>
 
     <footer class="ftr">
-      <div>LOCAL SAVE (THIS DEVICE). BACK UP WITH JSON.</div>
+      <button class="btn footerBtn" id="backupFooterBtn" type="button">BACKUP NOW (JSON)</button>
+      <button class="btn footerBtn" id="backupToggleBtn" type="button">BACKUP OPTIONS</button>
     </footer>
   </div>
 
-  <!-- THIS LINE CONNECTS YOUR JAVASCRIPT FILE -->
   <script src="app.js"></script>
 </body>
 </html>
