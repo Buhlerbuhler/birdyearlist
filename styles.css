@@ -1,3 +1,4 @@
+/* styles.css */
 :root{
   --bg:#0a0a0a;
   --fg:#f2f2f2;
@@ -9,9 +10,7 @@
   --stroke:2px;
 }
 
-*{
-  box-sizing:border-box;
-}
+*{ box-sizing:border-box; }
 
 html, body{
   margin:0;
@@ -41,6 +40,7 @@ html, body{
   letter-spacing:0.12em;
   font-size:12px;
   opacity:0.9;
+  text-transform:uppercase;
 }
 
 .title{
@@ -67,6 +67,7 @@ html, body{
 .badgeLabel{
   font-size:12px;
   color:var(--muted);
+  text-transform:uppercase;
 }
 
 .badgeValue{
@@ -93,9 +94,7 @@ html, body{
   text-transform:uppercase;
 }
 
-.tab + .tab{
-  border-left:var(--stroke) solid var(--line);
-}
+.tab + .tab{ border-left:var(--stroke) solid var(--line); }
 
 .tab.active{
   background:var(--fg);
@@ -148,9 +147,7 @@ input, select{ min-width:0; max-width:100%; }
   text-transform:uppercase;
 }
 
-input, select, button{
-  font:inherit;
-}
+input, select, button{ font:inherit; }
 
 input, select{
   width:100%;
@@ -199,9 +196,7 @@ input:focus, select:focus{
   color:var(--fg);
 }
 
-.btn.danger{
-  border-style:dashed;
-}
+.btn.danger{ border-style:dashed; }
 
 .actions{
   display:flex;
@@ -210,9 +205,9 @@ input:focus, select:focus{
   margin-bottom:10px;
 }
 
-.file{
-  flex:1;
-  min-width:220px;
+.actionsBottom{
+  margin-top:14px;
+  margin-bottom:0;
 }
 
 .msg{
@@ -240,9 +235,7 @@ input:focus, select:focus{
   gap:var(--gap);
 }
 
-.item .left{
-  min-width:0;
-}
+.item .left{ min-width:0; }
 
 .item .num{
   font-size:12px;
@@ -288,7 +281,6 @@ input:focus, select:focus{
   letter-spacing:0.1em;
 }
 
-/* Footer becomes the primary backup control */
 .ftr{
   margin-top:12px;
   border:var(--stroke) solid var(--line);
@@ -302,26 +294,6 @@ input:focus, select:focus{
 }
 
 .footerBtn{
-  flex:1;
-  min-width:220px;
-}
-
-/* Backup panel is hidden by default and opened via footer button */
-.backupPanel{
-  border:var(--stroke) solid var(--line);
-  background:var(--bg);
-  padding:12px;
-  margin-bottom:12px;
-}
-
-.backupRow{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
-.backupRow .file{
   flex:1;
   min-width:220px;
 }
