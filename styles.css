@@ -19,7 +19,7 @@ html, body{
   background:var(--bg);
   color:var(--fg);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-  overflow-x:hidden; /* safety net */
+  overflow-x:hidden;
 }
 
 .wrap{
@@ -90,6 +90,7 @@ html, body{
   font-weight:700;
   letter-spacing:0.08em;
   cursor:pointer;
+  text-transform:uppercase;
 }
 
 .tab + .tab{
@@ -119,23 +120,23 @@ html, body{
   grid-template-columns:1fr 1fr;
 }
 
-/* IMPORTANT FIXES FOR MOBILE OVERFLOW */
-.row2 > *{
-  min-width:0;
-}
-
-.field{
-  min-width:0;
-}
-
-input, select{
-  min-width:0;
-  max-width:100%;
-}
+/* iOS date inputs can refuse to shrink; this prevents horizontal overflow */
+.row2 > *{ min-width:0; }
+.field{ min-width:0; }
+input, select{ min-width:0; max-width:100%; }
 
 @media (max-width:520px){
-  .row2{
-    grid-template-columns:1fr;
+  .row2{ grid-template-columns:1fr; }
+}
+
+@media (max-width:640px){
+  .hdr{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .badge{
+    width:100%;
+    text-align:left;
   }
 }
 
@@ -144,6 +145,7 @@ input, select{
   font-size:12px;
   letter-spacing:0.1em;
   margin-bottom:6px;
+  text-transform:uppercase;
 }
 
 input, select, button{
@@ -175,6 +177,7 @@ input:focus, select:focus{
   border:var(--stroke) solid var(--line);
   background:transparent;
   color:var(--fg);
+  border-radius:0;
   cursor:pointer;
   font-weight:700;
   letter-spacing:0.08em;
@@ -285,13 +288,40 @@ input:focus, select:focus{
   letter-spacing:0.1em;
 }
 
+/* Footer becomes the primary backup control */
 .ftr{
   margin-top:12px;
   border:var(--stroke) solid var(--line);
   padding:10px;
   background:var(--panel);
-  color:var(--muted);
-  font-size:12px;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.footerBtn{
+  flex:1;
+  min-width:220px;
+}
+
+/* Backup panel is hidden by default and opened via footer button */
+.backupPanel{
+  border:var(--stroke) solid var(--line);
+  background:var(--bg);
+  padding:12px;
+  margin-bottom:12px;
+}
+
+.backupRow{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.backupRow .file{
+  flex:1;
+  min-width:220px;
 }
