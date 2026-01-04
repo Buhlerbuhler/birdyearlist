@@ -106,6 +106,7 @@ html, body{
   border:var(--stroke) solid var(--line);
   background:var(--panel);
   padding:var(--pad);
+  width:100%;
 }
 
 .grid{
