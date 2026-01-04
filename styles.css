@@ -288,12 +288,20 @@ input:focus, select:focus{
   background:var(--panel);
   display:flex;
   gap:12px;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;          /* single row */
   align-items:center;
   justify-content:space-between;
 }
 
 .footerBtn{
-  flex:1;
-  min-width:220px;
+  flex:1;                    /* both buttons share the row */
+  min-width:0;               /* allow shrink */
+  padding:12px 8px;          /* slightly tighter */
+  text-align:center;
+}
+
+/* if you ever switch back to longer labels, auto-shorten on small screens */
+@media (max-width:420px){
+  #backupFooterBtn{ letter-spacing:0.06em; }
+  #importJsonBtn{ letter-spacing:0.06em; }
 }
