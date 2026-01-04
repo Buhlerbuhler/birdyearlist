@@ -305,3 +305,25 @@ input:focus, select:focus{
   #backupFooterBtn{ letter-spacing:0.06em; }
   #importJsonBtn{ letter-spacing:0.06em; }
 }
+/* iOS Safari date input overflow fix */
+input[type="date"]{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  appearance:none;
+  -webkit-appearance:none;
+}
+
+/* Critical: allow grid children to shrink */
+.row2,
+.row2 > .field{
+  min-width:0;
+}
+
+/* iOS sometimes applies intrinsic min-width to inputs */
+.field input,
+.field select{
+  min-width:0;
+  max-width:100%;
+}
