@@ -286,3 +286,7 @@ input, select { min-width: 0; max-width: 100%; }
 
 /* Extra safety: stop horizontal scroll if something still misbehaves */
 html, body { overflow-x: hidden; }
+
+@media (max-width: 520px){
+  .row2{ grid-template-columns: 1fr; }
+}
