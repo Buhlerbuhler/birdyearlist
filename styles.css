@@ -279,3 +279,10 @@ input:focus, select:focus{
   letter-spacing:0.08em;
   text-transform:uppercase;
 }
+/* Prevent grid children from forcing overflow (common on iOS date inputs) */
+.row2 > * { min-width: 0; }
+.field { min-width: 0; }
+input, select { min-width: 0; max-width: 100%; }
+
+/* Extra safety: stop horizontal scroll if something still misbehaves */
+html, body { overflow-x: hidden; }
