@@ -1,97 +1,297 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Birds of Manitoba – Year List</title>
-<link rel="manifest" href="manifest.webmanifest">
+:root{
+  --bg:#0a0a0a;
+  --fg:#f2f2f2;
+  --muted:#bdbdbd;
+  --line:#f2f2f2;
+  --panel:#0f0f0f;
+  --pad:16px;
+  --gap:12px;
+  --stroke:2px;
+}
 
-  <!-- THIS LINE CONNECTS YOUR CSS FILE -->
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
+*{
+  box-sizing:border-box;
+}
 
-  <!-- EVERYTHING BELOW THIS LINE IS EXACTLY WHAT YOU ALREADY WROTE -->
+html, body{
+  margin:0;
+  padding:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  overflow-x:hidden; /* safety net */
+}
 
-  <div class="wrap">
-    <header class="hdr">
-      <div>
-        <div class="kicker">YEAR LIST</div>
-        <h1 class="title">BIRDS of manitoba</h1>
-        <div class="meta" id="statLine"></div>
-      </div>
+.wrap{
+  max-width:820px;
+  margin:0 auto;
+  padding:var(--pad);
+}
 
-      <div class="badge">
-        <div class="badgeLabel">YEAR</div>
-        <div class="badgeValue" id="yearLabel"></div>
-      </div>
-    </header>
+.hdr{
+  display:flex;
+  justify-content:space-between;
+  gap:var(--gap);
+  border:var(--stroke) solid var(--line);
+  padding:var(--pad);
+  background:var(--panel);
+}
 
-    <nav class="tabs" aria-label="Views">
-      <button id="tabAdd" class="tab active" type="button">ADD</button>
-      <button id="tabList" class="tab" type="button">LIST</button>
-    </nav>
+.kicker{
+  letter-spacing:0.12em;
+  font-size:12px;
+  opacity:0.9;
+}
 
-    <main class="panel">
-      <section id="viewAdd" class="view">
-        <div class="grid">
-          <div class="field">
-            <label for="species">BIRD</label>
-            <input id="species" list="mbSpecies"
-                   placeholder="Start typing (ex: Snowy Owl)"
-                   autocomplete="off" />
-            <datalist id="mbSpecies"></datalist>
-          </div>
+.title{
+  margin:10px 0 8px;
+  font-size:22px;
+  line-height:1.1;
+  text-transform:uppercase;
+}
 
-          <div class="row2">
-            <div class="field">
-              <label for="date">DAY</label>
-              <input id="date" type="date" />
-            </div>
+.meta{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.4;
+}
 
-            <div class="field">
-              <label for="yearSelect">YEAR</label>
-              <select id="yearSelect"></select>
-              <div class="hint">Year must match the chosen day.</div>
-            </div>
-          </div>
+.badge{
+  min-width:120px;
+  border:var(--stroke) solid var(--line);
+  padding:10px;
+  text-align:right;
+  background:var(--bg);
+}
 
-          <button class="btn primary" id="addBtn" type="button">ADD BIRD</button>
+.badgeLabel{
+  font-size:12px;
+  color:var(--muted);
+}
 
-          <div class="msg" id="message" role="status" aria-live="polite"></div>
-        </div>
-      </section>
+.badgeValue{
+  margin-top:6px;
+  font-size:22px;
+}
 
-      <section id="viewList" class="view" style="display:none;">
-        <div class="actions">
-          <button class="btn" id="exportBtn" type="button">EXPORT CSV</button>
-          <button class="btn" id="backupExportBtn" type="button">EXPORT BACKUP (JSON)</button>
-        </div>
+.tabs{
+  display:flex;
+  margin-top:12px;
+  border:var(--stroke) solid var(--line);
+  background:var(--panel);
+}
 
-        <div class="actions">
-          <input class="file" id="backupImportFile" type="file" accept="application/json" />
-          <button class="btn" id="backupImportBtn" type="button">IMPORT BACKUP</button>
-        </div>
+.tab{
+  flex:1;
+  padding:12px 10px;
+  border:0;
+  background:transparent;
+  color:var(--fg);
+  font-weight:700;
+  letter-spacing:0.08em;
+  cursor:pointer;
+}
 
-        <div class="meta" id="backupInfo"></div>
+.tab + .tab{
+  border-left:var(--stroke) solid var(--line);
+}
 
-        <div class="actions">
-          <button class="btn danger" id="clearYearBtn" type="button">CLEAR THIS YEAR</button>
-        </div>
+.tab.active{
+  background:var(--fg);
+  color:var(--bg);
+}
 
-        <div class="list" id="list"></div>
-        <div class="empty" id="emptyState" style="display:none;">
-          NO BIRDS LOGGED YET.
-        </div>
-      </section>
-    </main>
+.panel{
+  margin-top:12px;
+  border:var(--stroke) solid var(--line);
+  background:var(--panel);
+  padding:var(--pad);
+}
 
-    <footer class="ftr">
-      <div>LOCAL SAVE (THIS DEVICE). BACK UP WITH JSON.</div>
-    </footer>
-  </div>
+.grid{
+  display:grid;
+  gap:var(--gap);
+}
 
-  <!-- THIS LINE CONNECTS YOUR JAVASCRIPT FILE -->
-  <script src="app.js"></script>
-</body>
-</html>
+.row2{
+  display:grid;
+  gap:var(--gap);
+  grid-template-columns:1fr 1fr;
+}
+
+/* IMPORTANT FIXES FOR MOBILE OVERFLOW */
+.row2 > *{
+  min-width:0;
+}
+
+.field{
+  min-width:0;
+}
+
+input, select{
+  min-width:0;
+  max-width:100%;
+}
+
+@media (max-width:520px){
+  .row2{
+    grid-template-columns:1fr;
+  }
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  letter-spacing:0.1em;
+  margin-bottom:6px;
+}
+
+input, select, button{
+  font:inherit;
+}
+
+input, select{
+  width:100%;
+  padding:12px 10px;
+  border:var(--stroke) solid var(--line);
+  border-radius:0;
+  background:var(--bg);
+  color:var(--fg);
+  outline:none;
+}
+
+input:focus, select:focus{
+  box-shadow:6px 6px 0 var(--fg);
+}
+
+.hint{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.btn{
+  padding:12px 10px;
+  border:var(--stroke) solid var(--line);
+  background:transparent;
+  color:var(--fg);
+  cursor:pointer;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+.btn:hover{
+  background:var(--fg);
+  color:var(--bg);
+}
+
+.btn.primary{
+  background:var(--fg);
+  color:var(--bg);
+}
+
+.btn.primary:hover{
+  background:transparent;
+  color:var(--fg);
+}
+
+.btn.danger{
+  border-style:dashed;
+}
+
+.actions{
+  display:flex;
+  gap:var(--gap);
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.file{
+  flex:1;
+  min-width:220px;
+}
+
+.msg{
+  padding:10px;
+  border:var(--stroke) solid var(--line);
+  background:var(--bg);
+  min-height:44px;
+  display:flex;
+  align-items:center;
+  color:var(--muted);
+}
+
+.list{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+
+.item{
+  border:var(--stroke) solid var(--line);
+  padding:12px;
+  background:var(--bg);
+  display:flex;
+  justify-content:space-between;
+  gap:var(--gap);
+}
+
+.item .left{
+  min-width:0;
+}
+
+.item .num{
+  font-size:12px;
+  letter-spacing:0.1em;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.item .species{
+  font-size:16px;
+  text-transform:uppercase;
+}
+
+.item .right{
+  text-align:right;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  align-items:flex-end;
+}
+
+.pill{
+  padding:6px 8px;
+  border:var(--stroke) solid var(--line);
+  background:transparent;
+  color:var(--fg);
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+
+.pill:hover{
+  background:var(--fg);
+  color:var(--bg);
+}
+
+.empty{
+  margin-top:12px;
+  padding:12px;
+  border:var(--stroke) solid var(--line);
+  background:var(--bg);
+  text-transform:uppercase;
+  letter-spacing:0.1em;
+}
+
+.ftr{
+  margin-top:12px;
+  border:var(--stroke) solid var(--line);
+  padding:10px;
+  background:var(--panel);
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
