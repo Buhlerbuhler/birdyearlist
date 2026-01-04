@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,27 +60,23 @@
       </section>
 
       <section id="viewList" class="view" style="display:none;">
-        <div class="actions">
+        <div class="list" id="list"></div>
+        <div class="empty" id="emptyState" style="display:none;">NO BIRDS LOGGED YET.</div>
+
+        <!-- moved below the recorded birds -->
+        <div class="actions actionsBottom">
           <button class="btn" id="exportBtn" type="button">EXPORT CSV</button>
           <button class="btn danger" id="clearYearBtn" type="button">CLEAR THIS YEAR</button>
         </div>
-
-        <section id="backupPanel" class="backupPanel" style="display:none;">
-          <div class="backupRow">
-            <input class="file" id="backupImportFile" type="file" accept="application/json" />
-            <button class="btn" id="backupImportBtn" type="button">IMPORT BACKUP</button>
-          </div>
-          <div class="meta" id="backupInfo"></div>
-        </section>
-
-        <div class="list" id="list"></div>
-        <div class="empty" id="emptyState" style="display:none;">NO BIRDS LOGGED YET.</div>
       </section>
     </main>
 
     <footer class="ftr">
       <button class="btn footerBtn" id="backupFooterBtn" type="button">BACKUP NOW (JSON)</button>
-      <button class="btn footerBtn" id="backupToggleBtn" type="button">BACKUP OPTIONS</button>
+
+      <input id="importFileHidden" type="file" accept="application/json" style="display:none;" />
+
+      <button class="btn footerBtn" id="importJsonBtn" type="button">IMPORT JSON</button>
     </footer>
   </div>
 
