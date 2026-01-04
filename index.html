@@ -1,76 +1,96 @@
-<div class="wrap">
-  <header class="hdr">
-    <div>
-      <div class="kicker">YEAR LIST</div>
-      <h1 class="title">BIRDS of manitoba</h1>
-      <div class="meta" id="statLine"></div>
-    </div>
-<link rel="stylesheet" href="styles.css" />
-<script defer src="app.js"></script>
-    <div class="badge">
-      <div class="badgeLabel">YEAR</div>
-      <div class="badgeValue" id="yearLabel"></div>
-    </div>
-  </header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birds of Manitoba – Year List</title>
 
-  <nav class="tabs" aria-label="Views">
-    <button id="tabAdd" class="tab active" type="button">ADD</button>
-    <button id="tabList" class="tab" type="button">LIST</button>
-  </nav>
+  <!-- THIS LINE CONNECTS YOUR CSS FILE -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
 
-  <main class="panel">
-    <section id="viewAdd" class="view">
-      <div class="grid">
-        <div class="field">
-          <label for="species">BIRD</label>
-          <input id="species" list="mbSpecies" placeholder="Start typing (ex: Snowy Owl)" autocomplete="off" />
-          <datalist id="mbSpecies"></datalist>
+  <!-- EVERYTHING BELOW THIS LINE IS EXACTLY WHAT YOU ALREADY WROTE -->
 
-          
-        </div>
+  <div class="wrap">
+    <header class="hdr">
+      <div>
+        <div class="kicker">YEAR LIST</div>
+        <h1 class="title">BIRDS of manitoba</h1>
+        <div class="meta" id="statLine"></div>
+      </div>
 
-        <div class="row2">
+      <div class="badge">
+        <div class="badgeLabel">YEAR</div>
+        <div class="badgeValue" id="yearLabel"></div>
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Views">
+      <button id="tabAdd" class="tab active" type="button">ADD</button>
+      <button id="tabList" class="tab" type="button">LIST</button>
+    </nav>
+
+    <main class="panel">
+      <section id="viewAdd" class="view">
+        <div class="grid">
           <div class="field">
-            <label for="date">DAY</label>
-            <input id="date" type="date" />
+            <label for="species">BIRD</label>
+            <input id="species" list="mbSpecies"
+                   placeholder="Start typing (ex: Snowy Owl)"
+                   autocomplete="off" />
+            <datalist id="mbSpecies"></datalist>
           </div>
 
-          <div class="field">
-            <label for="yearSelect">YEAR</label>
-            <select id="yearSelect"></select>
-            <div class="hint">Year must match the chosen day.</div>
+          <div class="row2">
+            <div class="field">
+              <label for="date">DAY</label>
+              <input id="date" type="date" />
+            </div>
+
+            <div class="field">
+              <label for="yearSelect">YEAR</label>
+              <select id="yearSelect"></select>
+              <div class="hint">Year must match the chosen day.</div>
+            </div>
           </div>
+
+          <button class="btn primary" id="addBtn" type="button">ADD BIRD</button>
+
+          <div class="msg" id="message" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="viewList" class="view" style="display:none;">
+        <div class="actions">
+          <button class="btn" id="exportBtn" type="button">EXPORT CSV</button>
+          <button class="btn" id="backupExportBtn" type="button">EXPORT BACKUP (JSON)</button>
         </div>
 
-        <button class="btn primary" id="addBtn" type="button">ADD BIRD</button>
+        <div class="actions">
+          <input class="file" id="backupImportFile" type="file" accept="application/json" />
+          <button class="btn" id="backupImportBtn" type="button">IMPORT BACKUP</button>
+        </div>
 
-        <div class="msg" id="message" role="status" aria-live="polite"></div>
-      </div>
-    </section>
+        <div class="meta" id="backupInfo"></div>
 
-    <section id="viewList" class="view" style="display:none;">
-      <div class="actions">
-        <button class="btn" id="exportBtn" type="button">EXPORT CSV</button>
-        <button class="btn" id="backupExportBtn" type="button">EXPORT BACKUP (JSON)</button>
-      </div>
+        <div class="actions">
+          <button class="btn danger" id="clearYearBtn" type="button">CLEAR THIS YEAR</button>
+        </div>
 
-      <div class="actions">
-        <input class="file" id="backupImportFile" type="file" accept="application/json" />
-        <button class="btn" id="backupImportBtn" type="button">IMPORT BACKUP</button>
-      </div>
+        <div class="list" id="list"></div>
+        <div class="empty" id="emptyState" style="display:none;">
+          NO BIRDS LOGGED YET.
+        </div>
+      </section>
+    </main>
 
-      <div class="meta" id="backupInfo"></div>
+    <footer class="ftr">
+      <div>LOCAL SAVE (THIS DEVICE). BACK UP WITH JSON.</div>
+    </footer>
+  </div>
 
-      <div class="actions">
-        <button class="btn danger" id="clearYearBtn" type="button">CLEAR THIS YEAR</button>
-      </div>
-
-      <div class="list" id="list"></div>
-      <div class="empty" id="emptyState" style="display:none;">NO BIRDS LOGGED YET.</div>
-    </section>
-  </main>
-
-  <footer class="ftr">
-    <div>LOCAL SAVE (THIS DEVICE). BACK UP WITH JSON.</div>
-  </footer>
-</div>
+  <!-- THIS LINE CONNECTS YOUR JAVASCRIPT FILE -->
+  <script src="app.js"></script>
+</body>
+</html>
