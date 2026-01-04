@@ -1,7 +1,10 @@
 const STORAGE_KEY = "bird_year_list_v1";
 const BACKUP_META_KEY = "bird_year_list_backup_meta_v1";
 
-// Flip this if you want to allow birds not in your Manitoba list.
+/*
+  If true, users must pick a bird that matches your Manitoba list.
+  If false, they can type anything (still gets suggestions).
+*/
 const REQUIRE_SPECIES_FROM_LIST = false;
 
 const MB_SPECIES_RAW = `
@@ -299,6 +302,7 @@ Swamp Sparrow
 White-throated Sparrow
 Harris's Sparrow
 White-crowned Sparrow
+White-crowned Sparrow
 Golden-crowned Sparrow
 Dark-eyed Junco
 Summer Tanager
@@ -335,13 +339,9 @@ Eurasian Tree Sparrow
 
 function cleanSpeciesName(name) {
   let s = String(name).trim();
-  // remove trailing question marks and notes like "??"
   s = s.replace(/\?+$/g, "").trim();
-  // remove bracket notes like [Northern]
   s = s.replace(/\s*\[[^\]]+\]\s*/g, " ").replace(/\s+/g, " ").trim();
-  // normalize a known typo in your list
   if (s.toLowerCase() === "red-bellied wookpecker") s = "Red-bellied Woodpecker";
-  // title-case Turkey vulture specifically (leave others as given)
   if (s.toLowerCase() === "turkey vulture") s = "Turkey Vulture";
   return s;
 }
@@ -350,7 +350,6 @@ function parseSpeciesList(raw) {
   const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
   const cleaned = lines.map(cleanSpeciesName).filter(Boolean);
 
-  // de-dupe case-insensitively
   const seen = new Set();
   const out = [];
   for (const s of cleaned) {
@@ -359,7 +358,6 @@ function parseSpeciesList(raw) {
     seen.add(key);
     out.push(s);
   }
-  // sort alphabetically for nicer dropdown
   out.sort((a, b) => a.localeCompare(b));
   return out;
 }
@@ -367,28 +365,36 @@ function parseSpeciesList(raw) {
 const MB_SPECIES = parseSpeciesList(MB_SPECIES_RAW);
 const MB_SPECIES_SET = new Set(MB_SPECIES.map(s => s.toLowerCase()));
 
-// UI
 const el = {
   tabAdd: document.getElementById("tabAdd"),
   tabList: document.getElementById("tabList"),
   viewAdd: document.getElementById("viewAdd"),
   viewList: document.getElementById("viewList"),
+
   species: document.getElementById("species"),
+  datalist: document.getElementById("mbSpecies"),
   date: document.getElementById("date"),
   yearSelect: document.getElementById("yearSelect"),
+
   addBtn: document.getElementById("addBtn"),
   message: document.getElementById("message"),
+
   list: document.getElementById("list"),
   emptyState: document.getElementById("emptyState"),
+
   statLine: document.getElementById("statLine"),
   yearLabel: document.getElementById("yearLabel"),
+
   exportBtn: document.getElementById("exportBtn"),
   clearYearBtn: document.getElementById("clearYearBtn"),
-  backupExportBtn: document.getElementById("backupExportBtn"),
-  backupImportBtn: document.getElementById("backupImportBtn"),
+
+  backupPanel: document.getElementById("backupPanel"),
   backupImportFile: document.getElementById("backupImportFile"),
+  backupImportBtn: document.getElementById("backupImportBtn"),
   backupInfo: document.getElementById("backupInfo"),
-  datalist: document.getElementById("mbSpecies")
+
+  backupFooterBtn: document.getElementById("backupFooterBtn"),
+  backupToggleBtn: document.getElementById("backupToggleBtn")
 };
 
 function todayISO() {
@@ -404,7 +410,7 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { years: {} };
     const parsed = JSON.parse(raw);
-    if (!parsed.years) return { years: {} };
+    if (!parsed || typeof parsed !== "object" || !parsed.years) return { years: {} };
     return parsed;
   } catch {
     return { years: {} };
@@ -427,113 +433,6 @@ function ensureYear(state, year) {
   const key = String(year);
   if (!state.years[key]) state.years[key] = [];
   return state.years[key];
-}
-
-function nextYearNumber(entries) {
-  let max = 0;
-  for (const e of entries) if (typeof e.yearNumber === "number" && e.yearNumber > max) max = e.yearNumber;
-  return max + 1;
-}
-
-function speciesExists(entries, species) {
-  const target = species.toLowerCase();
-  return entries.find(e => String(e.species).toLowerCase() === target) || null;
-}
-
-function sortEntries(entries) {
-  return [...entries].sort((a, b) => (a.yearNumber - b.yearNumber) || String(a.date).localeCompare(String(b.date)));
-}
-
-function toCSV(entries, year) {
-  const rows = [["yearNumber", "species", "date", "year"].join(",")];
-  for (const e of sortEntries(entries)) {
-    const safeSpecies = `"${String(e.species).replaceAll('"', '""')}"`;
-    rows.push([e.yearNumber, safeSpecies, e.date, year].join(","));
-  }
-  return rows.join("\n");
-}
-
-function setBackupMeta(meta) {
-  localStorage.setItem(BACKUP_META_KEY, JSON.stringify(meta));
-}
-
-function getBackupMeta() {
-  try {
-    const raw = localStorage.getItem(BACKUP_META_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function updateBackupInfo() {
-  const meta = getBackupMeta();
-  el.backupInfo.textContent = meta?.lastBackupISO
-    ? `BACKUP: LAST EXPORTED ${meta.lastBackupISO}`
-    : "BACKUP: NONE YET";
-}
-
-function downloadTextFile(filename, text, mimeType) {
-  const blob = new Blob([text], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function validateBackupShape(obj) {
-  if (!obj || typeof obj !== "object") return false;
-  if (!obj.years || typeof obj.years !== "object") return false;
-  for (const [year, arr] of Object.entries(obj.years)) {
-    if (!/^\d{4}$/.test(year)) return false;
-    if (!Array.isArray(arr)) return false;
-  }
-  return true;
-}
-
-function mergeBackupIntoState(currentState, incomingState) {
-  const out = { years: {} };
-
-  for (const [year, entries] of Object.entries(currentState.years || {})) {
-    out.years[year] = Array.isArray(entries) ? [...entries] : [];
-  }
-
-  for (const [year, entries] of Object.entries(incomingState.years || {})) {
-    if (!out.years[year]) out.years[year] = [];
-    for (const inc of entries) {
-      if (!inc || !inc.species || !inc.date) continue;
-      const incSpecies = normalizeSpecies(inc.species);
-      if (!incSpecies) continue;
-
-      const existing = out.years[year].find(e => normalizeSpecies(e.species).toLowerCase() === incSpecies.toLowerCase());
-      if (!existing) {
-        out.years[year].push({
-          id: inc.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
-          species: incSpecies,
-          date: String(inc.date),
-          yearNumber: 0
-        });
-      } else {
-        const a = String(existing.date);
-        const b = String(inc.date);
-        if (b < a) existing.date = b;
-      }
-    }
-  }
-
-  for (const year of Object.keys(out.years)) {
-    const sorted = [...out.years[year]].sort(
-      (a, b) => String(a.date).localeCompare(String(b.date)) || String(a.species).localeCompare(String(b.species))
-    );
-    sorted.forEach((e, i) => (e.yearNumber = i + 1));
-    out.years[year] = sorted;
-  }
-
-  return out;
 }
 
 function currentYear() {
@@ -566,6 +465,34 @@ function fillYearSelect() {
   }
 }
 
+function hydrateDatalist() {
+  el.datalist.innerHTML = "";
+  const frag = document.createDocumentFragment();
+  for (const s of MB_SPECIES) {
+    const opt = document.createElement("option");
+    opt.value = s;
+    frag.appendChild(opt);
+  }
+  el.datalist.appendChild(frag);
+}
+
+function sortEntries(entries) {
+  return [...entries].sort((a, b) => (a.yearNumber - b.yearNumber) || String(a.date).localeCompare(String(b.date)));
+}
+
+function speciesExists(entries, species) {
+  const target = species.toLowerCase();
+  return entries.find(e => String(e.species).toLowerCase() === target) || null;
+}
+
+function nextYearNumber(entries) {
+  let max = 0;
+  for (const e of entries) {
+    if (typeof e.yearNumber === "number" && e.yearNumber > max) max = e.yearNumber;
+  }
+  return max + 1;
+}
+
 function updateHeaderStats() {
   const y = currentYear();
   const entries = ensureYear(state, y);
@@ -579,17 +506,114 @@ function updateHeaderStats() {
   el.statLine.textContent = `${entries.length} BIRDS LOGGED. LATEST: #${latest.yearNumber} ${String(latest.species).toUpperCase()} (${latest.date})`;
 }
 
-function hydrateDatalist() {
-  el.datalist.innerHTML = "";
-  const frag = document.createDocumentFragment();
-  for (const s of MB_SPECIES) {
-    const opt = document.createElement("option");
-    opt.value = s;
-    frag.appendChild(opt);
-  }
-  el.datalist.appendChild(frag);
+function escapeHTML(str) {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
+function downloadTextFile(filename, text, mimeType) {
+  const blob = new Blob([text], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function toCSV(entries, year) {
+  const rows = [["yearNumber", "species", "date", "year"].join(",")];
+  for (const e of sortEntries(entries)) {
+    const safeSpecies = `"${String(e.species).replaceAll('"', '""')}"`;
+    rows.push([e.yearNumber, safeSpecies, e.date, year].join(","));
+  }
+  return rows.join("\n");
+}
+
+/* Backup meta */
+function setBackupMeta(meta) {
+  localStorage.setItem(BACKUP_META_KEY, JSON.stringify(meta));
+}
+
+function getBackupMeta() {
+  try {
+    const raw = localStorage.getItem(BACKUP_META_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function updateBackupInfo() {
+  const meta = getBackupMeta();
+  el.backupInfo.textContent = meta && meta.lastBackupISO
+    ? `BACKUP: LAST EXPORTED ${meta.lastBackupISO}`
+    : "BACKUP: NONE YET";
+}
+
+/* Backup merge/import */
+function validateBackupShape(obj) {
+  if (!obj || typeof obj !== "object") return false;
+  if (!obj.years || typeof obj.years !== "object") return false;
+  for (const [year, arr] of Object.entries(obj.years)) {
+    if (!/^\d{4}$/.test(year)) return false;
+    if (!Array.isArray(arr)) return false;
+  }
+  return true;
+}
+
+function mergeBackupIntoState(currentState, incomingState) {
+  const out = { years: {} };
+
+  for (const [year, entries] of Object.entries(currentState.years || {})) {
+    out.years[year] = Array.isArray(entries) ? [...entries] : [];
+  }
+
+  for (const [year, entries] of Object.entries(incomingState.years || {})) {
+    if (!out.years[year]) out.years[year] = [];
+    for (const inc of entries) {
+      if (!inc || !inc.species || !inc.date) continue;
+
+      const incSpecies = normalizeSpecies(inc.species);
+      if (!incSpecies) continue;
+
+      const existing = out.years[year].find(
+        e => normalizeSpecies(e.species).toLowerCase() === incSpecies.toLowerCase()
+      );
+
+      if (!existing) {
+        out.years[year].push({
+          id: inc.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+          species: incSpecies,
+          date: String(inc.date),
+          yearNumber: 0
+        });
+      } else {
+        const a = String(existing.date);
+        const b = String(inc.date);
+        if (b < a) existing.date = b;
+      }
+    }
+  }
+
+  for (const year of Object.keys(out.years)) {
+    const sorted = [...out.years[year]].sort(
+      (a, b) => String(a.date).localeCompare(String(b.date)) || String(a.species).localeCompare(String(b.species))
+    );
+    sorted.forEach((e, i) => (e.yearNumber = i + 1));
+    out.years[year] = sorted;
+  }
+
+  return out;
+}
+
+/* Actions */
 function addBird() {
   const speciesRaw = el.species.value;
   const date = el.date.value;
@@ -618,7 +642,6 @@ function addBird() {
 
   const entries = ensureYear(state, year);
   const existing = speciesExists(entries, species);
-
   if (existing) {
     setMessage(`ALREADY COUNTED. FIRST SEEN ${existing.date} AS #${existing.yearNumber}.`);
     el.species.select();
@@ -716,11 +739,13 @@ function exportBackupJSON() {
     data: state
   };
   const safeNameDate = payload.exportedAtISO.slice(0, 10);
+
   downloadTextFile(
     `bird-year-list-backup-${safeNameDate}.json`,
     JSON.stringify(payload, null, 2),
     "application/json;charset=utf-8"
   );
+
   setBackupMeta({ lastBackupISO: payload.exportedAtISO });
   updateBackupInfo();
   setMessage("BACKUP EXPORTED (JSON).");
@@ -768,6 +793,7 @@ async function importBackupJSON() {
   updateHeaderStats();
   if (el.viewList.style.display !== "none") renderList();
 
+  updateBackupInfo();
   setMessage("BACKUP IMPORTED AND MERGED.");
 }
 
@@ -779,16 +805,7 @@ function clearYear() {
   setMessage(`CLEARED ${year}.`);
 }
 
-function escapeHTML(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-// Init
+/* Init */
 let state = loadState();
 hydrateDatalist();
 fillYearSelect();
@@ -812,6 +829,13 @@ el.yearSelect.addEventListener("change", () => {
 });
 
 el.exportBtn.addEventListener("click", exportCSV);
-el.backupExportBtn.addEventListener("click", exportBackupJSON);
-el.backupImportBtn.addEventListener("click", importBackupJSON);
 el.clearYearBtn.addEventListener("click", clearYear);
+
+el.backupFooterBtn.addEventListener("click", exportBackupJSON);
+el.backupImportBtn.addEventListener("click", importBackupJSON);
+
+el.backupToggleBtn.addEventListener("click", () => {
+  const isOpen = el.backupPanel.style.display !== "none";
+  el.backupPanel.style.display = isOpen ? "none" : "";
+  if (!isOpen) updateBackupInfo();
+});
