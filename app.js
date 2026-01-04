@@ -1,3 +1,4 @@
+// app.js
 const STORAGE_KEY = "bird_year_list_v1";
 const BACKUP_META_KEY = "bird_year_list_backup_meta_v1";
 
@@ -302,7 +303,6 @@ Swamp Sparrow
 White-throated Sparrow
 Harris's Sparrow
 White-crowned Sparrow
-White-crowned Sparrow
 Golden-crowned Sparrow
 Dark-eyed Junco
 Summer Tanager
@@ -388,13 +388,9 @@ const el = {
   exportBtn: document.getElementById("exportBtn"),
   clearYearBtn: document.getElementById("clearYearBtn"),
 
-  backupPanel: document.getElementById("backupPanel"),
-  backupImportFile: document.getElementById("backupImportFile"),
-  backupImportBtn: document.getElementById("backupImportBtn"),
-  backupInfo: document.getElementById("backupInfo"),
-
   backupFooterBtn: document.getElementById("backupFooterBtn"),
-  backupToggleBtn: document.getElementById("backupToggleBtn")
+  importJsonBtn: document.getElementById("importJsonBtn"),
+  importFileHidden: document.getElementById("importFileHidden")
 };
 
 function todayISO() {
@@ -541,23 +537,7 @@ function setBackupMeta(meta) {
   localStorage.setItem(BACKUP_META_KEY, JSON.stringify(meta));
 }
 
-function getBackupMeta() {
-  try {
-    const raw = localStorage.getItem(BACKUP_META_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function updateBackupInfo() {
-  const meta = getBackupMeta();
-  el.backupInfo.textContent = meta && meta.lastBackupISO
-    ? `BACKUP: LAST EXPORTED ${meta.lastBackupISO}`
-    : "BACKUP: NONE YET";
-}
-
-/* Backup merge/import */
+/* Backup validation and merge */
 function validateBackupShape(obj) {
   if (!obj || typeof obj !== "object") return false;
   if (!obj.years || typeof obj.years !== "object") return false;
@@ -747,14 +727,12 @@ function exportBackupJSON() {
   );
 
   setBackupMeta({ lastBackupISO: payload.exportedAtISO });
-  updateBackupInfo();
   setMessage("BACKUP EXPORTED (JSON).");
 }
 
-async function importBackupJSON() {
-  const file = el.backupImportFile.files && el.backupImportFile.files[0];
+async function importBackupJSONFromFile(file) {
   if (!file) {
-    setMessage("CHOOSE A BACKUP FILE FIRST.");
+    setMessage("NO FILE SELECTED.");
     return;
   }
 
@@ -789,12 +767,10 @@ async function importBackupJSON() {
   state = mergeBackupIntoState(state, incomingState);
   saveState(state);
 
-  el.backupImportFile.value = "";
   updateHeaderStats();
   if (el.viewList.style.display !== "none") renderList();
 
-  updateBackupInfo();
-  setMessage("BACKUP IMPORTED AND MERGED.");
+  setMessage("IMPORT COMPLETE.");
 }
 
 function clearYear() {
@@ -812,7 +788,6 @@ fillYearSelect();
 el.date.value = todayISO();
 ensureYear(state, currentYear());
 updateHeaderStats();
-updateBackupInfo();
 
 el.tabAdd.addEventListener("click", () => setTab("add"));
 el.tabList.addEventListener("click", () => setTab("list"));
@@ -832,10 +807,13 @@ el.exportBtn.addEventListener("click", exportCSV);
 el.clearYearBtn.addEventListener("click", clearYear);
 
 el.backupFooterBtn.addEventListener("click", exportBackupJSON);
-el.backupImportBtn.addEventListener("click", importBackupJSON);
 
-el.backupToggleBtn.addEventListener("click", () => {
-  const isOpen = el.backupPanel.style.display !== "none";
-  el.backupPanel.style.display = isOpen ? "none" : "";
-  if (!isOpen) updateBackupInfo();
+el.importJsonBtn.addEventListener("click", () => {
+  el.importFileHidden.value = "";
+  el.importFileHidden.click();
+});
+
+el.importFileHidden.addEventListener("change", async () => {
+  const file = el.importFileHidden.files && el.importFileHidden.files[0];
+  await importBackupJSONFromFile(file);
 });
