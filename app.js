@@ -502,7 +502,7 @@ function updateHeaderStats() {
     el.statLine.textContent = "0 BIRDS LOGGED";
     return;
   }
-  const latest = sortEntries(entries)[entries.length - 1];
+  const latest = sortEntries(entries)[0];
   el.statLine.textContent = `${entries.length} BIRDS LOGGED. LATEST: #${latest.yearNumber} ${String(latest.species).toUpperCase()} (${latest.date})`;
 }
 
