@@ -781,6 +781,14 @@ function clearYear() {
   setMessage(`CLEARED ${year}.`);
 }
 
+function goToAdd() {
+  setTab("add");
+}
+
+function goToList() {
+  setTab("list");
+}
+
 /* Init */
 let state = loadState();
 hydrateDatalist();
@@ -817,3 +825,43 @@ el.importFileHidden.addEventListener("change", async () => {
   const file = el.importFileHidden.files && el.importFileHidden.files[0];
   await importBackupJSONFromFile(file);
 });
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+const SWIPE_THRESHOLD = 50;
+const VERTICAL_TOLERANCE = 40;
+
+const swipeArea = document.querySelector(".panel");
+
+swipeArea.addEventListener("touchstart", (e) => {
+  const touch = e.changedTouches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}, { passive: true });
+
+swipeArea.addEventListener("touchend", (e) => {
+  const touch = e.changedTouches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  const mostlyHorizontal =
+    Math.abs(deltaX) > SWIPE_THRESHOLD &&
+    Math.abs(deltaY) < VERTICAL_TOLERANCE;
+
+  if (!mostlyHorizontal) return;
+
+  const addIsVisible = el.viewAdd.style.display !== "none";
+  const listIsVisible = el.viewList.style.display !== "none";
+
+  if (deltaX < 0 && addIsVisible) {
+    goToList();
+  } else if (deltaX > 0 && listIsVisible) {
+    goToAdd();
+  }
+}, { passive: true });
