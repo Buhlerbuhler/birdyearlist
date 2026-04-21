@@ -473,7 +473,11 @@ function hydrateDatalist() {
 }
 
 function sortEntries(entries) {
-  return [...entries].sort((a, b) => (a.yearNumber - b.yearNumber) || String(a.date).localeCompare(String(b.date)));
+  return [...entries].sort((a, b) => {
+    // newest first by yearNumber
+    return (b.yearNumber - a.yearNumber) 
+      || String(b.date).localeCompare(String(a.date));
+  });
 }
 
 function speciesExists(entries, species) {
