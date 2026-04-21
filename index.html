@@ -1,13 +1,12 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Birds of Manitoba – Year List</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#0a0a0a">
 
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css" />
@@ -40,7 +39,6 @@
             <label for="species">BIRD</label>
             <input id="species" list="mbSpecies" placeholder="Start typing (ex: Snowy Owl)" autocomplete="off" />
             <datalist id="mbSpecies"></datalist>
-        
           </div>
 
           <div class="row2">
@@ -66,21 +64,20 @@
         <div class="list" id="list"></div>
         <div class="empty" id="emptyState" style="display:none;">NO BIRDS LOGGED YET.</div>
 
-        <!-- moved below the recorded birds -->
         <div class="actions actionsBottom">
           <button class="btn" id="exportBtn" type="button">EXPORT CSV</button>
           <button class="btn danger" id="clearYearBtn" type="button">CLEAR THIS YEAR</button>
         </div>
+
+        <div class="actions actionsBottom">
+          <button class="btn footerBtn" id="backupFooterBtn" type="button">BKP</button>
+
+          <input id="importFileHidden" type="file" accept="application/json" style="display:none;" />
+
+          <button class="btn footerBtn" id="importJsonBtn" type="button">UPL</button>
+        </div>
       </section>
     </main>
-
-   <footer class="ftr">
-  <button class="btn footerBtn" id="backupFooterBtn" type="button">BACKUP</button>
-
-  <input id="importFileHidden" type="file" accept="application/json" style="display:none;" />
-
-  <button class="btn footerBtn" id="importJsonBtn" type="button">IMPORT</button>
-</footer>
   </div>
 
   <script src="app.js"></script>
